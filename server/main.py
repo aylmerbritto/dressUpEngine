@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 
 from gabriel_server import local_engine
-from openrtist_engine import OpenrtistEngine
+from dressUPEngine import DressUpEngine
 from timing_engine import TimingEngine
 import logging
 import cv2
 import argparse
 import importlib
+import dill as pickle
+import torch
+import torch.nn as nn
 
 DEFAULT_PORT = 9099
 DEFAULT_NUM_TOKENS = 2
@@ -18,61 +21,16 @@ logging.basicConfig(level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
+import sys
+sys.path.append('/home/arexhari/aylmer843/PF-AFN/PF-AFN_test')
+from inference import dressUpInference
+from options.test_options import TestOptions
+from models.networks import ResUnetGenerator, load_checkpoint
+from models.afwm import AFWM
 
 def create_adapter(openvino, cpu_only, force_torch, use_myriad):
     """Create the best adapter based on constraints passed as CLI arguments."""
-
-    if use_myriad:
-        openvino = True
-        if cpu_only:
-            raise Exception("Cannot run with both cpu-only and Myriad options")
-
-    if force_torch and openvino:
-        raise Exception("Cannot run with both Torch and OpenVINO")
-
-    if not openvino:
-        if importlib.util.find_spec("torch") is None:
-            logger.info("Could not find Torch")
-            openvino = True
-        elif not cpu_only:
-            import torch
-
-            if torch.cuda.is_available():
-                logger.info("Detected GPU / CUDA support")
-                from torch_adapter import TorchAdapter
-
-                return TorchAdapter(False, DEFAULT_STYLE)
-            else:
-                logger.info("Failed to detect GPU / CUDA support")
-
-    if not force_torch:
-        if importlib.util.find_spec("openvino") is None:
-            logger.info("Could not find Openvino")
-            if openvino:
-                raise Exception("No suitable engine")
-        else:
-            if not cpu_only and not use_myriad:
-                from openvino.inference_engine import IEPlugin
-
-                try:
-                    IEPlugin("GPU")
-                    logger.info("Detected iGPU / clDNN support")
-                except RuntimeError:
-                    logger.info("Failed to detect iGPU / clDNN support")
-                    cpu_only = True
-
-            logger.info("Using OpenVINO")
-            logger.info("CPU Only: %s", cpu_only)
-            logger.info("Use Myriad: %s", use_myriad)
-            from openvino_adapter import OpenvinoAdapter
-
-            adapter = OpenvinoAdapter(cpu_only, DEFAULT_STYLE, use_myriad=use_myriad)
-            return adapter
-
-    logger.info("Using Torch with CPU")
-    from torch_adapter import TorchAdapter
-
-    return TorchAdapter(True, DEFAULT_STYLE)
+    return TorchAdapter(False, DEFAULT_STYLE)
 
 
 def main():
@@ -119,13 +77,14 @@ def main():
         if args.timing:
             engine = TimingEngine(COMPRESSION_PARAMS, adapter)
         else:
-            engine = OpenrtistEngine(COMPRESSION_PARAMS, adapter)
+            engine = DressUpEngine(COMPRESSION_PARAMS, adapter)
 
         return engine
+    #create_adapter(args.openvino, args.cpu_only, args.torch, args.myriad)
 
     local_engine.run(
-        engine_setup,
-        OpenrtistEngine.SOURCE_NAME,
+        lambda: DressUpEngine(COMPRESSION_PARAMS),
+        DressUpEngine.SOURCE_NAME,
         INPUT_QUEUE_MAXSIZE,
         args.port,
         args.tokens,
