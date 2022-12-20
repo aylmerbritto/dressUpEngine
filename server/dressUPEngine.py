@@ -4,21 +4,13 @@ import logging
 from gabriel_server import cognitive_engine
 from gabriel_protocol import gabriel_pb2
 import openrtist_pb2
-import os
-from io import BytesIO
 from maskBG import bgMask
 logger = logging.getLogger(__name__)
-
-# from azure.cognitiveservices.vision.face import FaceClient
-# from azure.cognitiveservices.vision.face.models import FaceAttributeType
-# from msrest.authentication import CognitiveServicesCredentials
-# import http.client, urllib.request, urllib.parse, urllib.error, base64
 import json
-# from emotion_to_style import emotion_to_style_map
 
 import sys
 sys.path.append('/home/arexhari/aylmer843/PF-AFN/PF-AFN_test')
-from inference import dressUpInference
+from dressUpInference import dressUpInference
 
 class DressUpEngine(cognitive_engine.Engine):
     SOURCE_NAME = "openrtist"
@@ -37,8 +29,6 @@ class DressUpEngine(cognitive_engine.Engine):
         clothId = json.loads(extras.style)['clothID']
         np_data = np.frombuffer(input_frame.payloads[0], dtype=np.uint8)
         orig_img = cv2.imdecode(np_data, cv2.IMREAD_COLOR)
-        # orig_img = cv2.rotate(orig_img, cv2.ROTATE_90_CLOCKWISE)
-        # cv2.imwrite('input1.jpg',orig_img)
         image = orig_img
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = self.mask.run(image)

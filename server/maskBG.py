@@ -12,16 +12,15 @@ class bgMask:
         self.faceModel = mp_face_detection.FaceDetection(model_selection=1, min_detection_confidence=0.5)
     
     def run(self, image):
-        image_height, image_width, _ = image.shape
         results = self.faceModel.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
         if not results.detections:
             print("Face not detected")
             return None
-        results = self.model.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
         # blurred_image = cv2.GaussianBlur(image,(55,55),0)
         # outputImage = np.where(condition, img[:, :, ::-1], MASK_COLOR)
-        condition = np.stack((results.segmentation_mask,) * 3, axis=-1) > 0.1
         # outputImage = cv2.GaussianBlur(image,(55,55),0)
+        results = self.model.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+        condition = np.stack((results.segmentation_mask,) * 3, axis=-1) > 0.1
         outputImage = np.where(condition, image[:, :, ::-1], MASK_COLOR)
         output_image = np.where(condition, image, outputImage)
         return output_image
