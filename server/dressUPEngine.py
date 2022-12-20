@@ -8,8 +8,6 @@ from maskBG import bgMask
 logger = logging.getLogger(__name__)
 import json
 
-import sys
-sys.path.append('/home/arexhari/aylmer843/PF-AFN/PF-AFN_test')
 from dressUpInference import dressUpInference
 
 class DressUpEngine(cognitive_engine.Engine):

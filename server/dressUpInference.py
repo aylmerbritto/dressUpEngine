@@ -1,19 +1,23 @@
-import time
-from options.test_options import TestOptions
-from data.base_dataset import BaseDataset, get_params, get_transform
 from PIL import Image
-from models.networks import ResUnetGenerator, load_checkpoint
-from models.afwm import AFWM
+import numpy as np
+import cv2
 import torch
 import torch.nn as nn
-import os
-import numpy as np
-
-import cv2
 import torch.nn.functional as F
 
+import os
+sys.path.append('/home/arexhari/aylmer843/PF-AFN/PF-AFN_test')
+from options.test_options import TestOptions
+from data.base_dataset import BaseDataset, get_params, get_transform
+from models.networks import ResUnetGenerator, load_checkpoint
+from models.afwm import AFWM
+
 from clothIndex import getCloth
-#python test.py --name demo --resize_or_crop None --batchSize 1 --gpu_ids 0
+
+
+
+
+
 
 class dressUpInference():
 	def __init__(self):
