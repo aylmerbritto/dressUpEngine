@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import os
-sys.path.append('/home/arexhari/aylmer843/PF-AFN/PF-AFN_test')
+sys.path.append('../PF-AFN/PF-AFN_test')
 from options.test_options import TestOptions
 from data.base_dataset import BaseDataset, get_params, get_transform
 from models.networks import ResUnetGenerator, load_checkpoint
